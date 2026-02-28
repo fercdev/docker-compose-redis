@@ -48,6 +48,8 @@ app.get("/products/:id", async (req, res) => {
         "SELECT * FROM products WHERE id = $1",
         [id]
     );
+
+    console.log("Resultado consulta DB:", resultDb.rows);
     
     if (resultDb.rows.length === 0) {
         return res.status(404).json({ error: "Record not found"});
@@ -55,8 +57,8 @@ app.get("/products/:id", async (req, res) => {
 
     await redisClient.setEx(
         key,
-        JSON.stringify(resultDb.rows[0]),
-        3600 // TTL en segundos del registro en cache (1 hora)
+        3600,
+        JSON.stringify(resultDb.rows[0])
     );
     res.json(resultDb.rows[0]);
 });

@@ -35,21 +35,21 @@ app.get("/products/:id", async (req, res) => {
     const recordCached = await redisClient.get(key);
 
     if (recordCached) {
-        console.log("Registro en cache encontrado...", recordCached);
+        console.log("1- Registro en cache(REDIS) encontrado...", recordCached);
+        console.log("-------------------------------------------------------");
         return res.json(JSON.parse(recordCached));
     }
 
-    console.log(`Producto: ${id} en REDIS no encontrado..`);
+    console.log(`0- Producto: ${id} en REDIS no encontrado..`);
 
-    console.log("Consultando producto:", id);
-    //console.log("Conexion Postgres:", pool);
+    console.log("1- Consultando producto:", id);
 
     const resultDb = await pool.query(
         "SELECT * FROM products WHERE id = $1",
         [id]
     );
 
-    console.log("Resultado consulta DB:", resultDb.rows);
+    console.log("2- Resultado consulta DB:", resultDb.rows);
     
     if (resultDb.rows.length === 0) {
         return res.status(404).json({ error: "Record not found"});
@@ -60,6 +60,8 @@ app.get("/products/:id", async (req, res) => {
         3600,
         JSON.stringify(resultDb.rows[0])
     );
+    console.log("3- Registrando producto en redis:", resultDb.rows[0]);
+    console.log("-------------------------------------------------------");
     res.json(resultDb.rows[0]);
 });
 
